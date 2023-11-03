@@ -17,13 +17,13 @@ public class BaseEntity {
     private LocalDateTime createdAt;
 
     @Column(updatable = false)
-    private LocalDateTime createdBy;
+    private String createdBy;
 
 
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
     @Column(insertable = false)
-    private LocalDateTime updatedBy;
+    private String updatedBy;
 
 }
