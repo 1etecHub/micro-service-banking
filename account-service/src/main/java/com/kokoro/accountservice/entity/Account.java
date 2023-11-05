@@ -16,9 +16,8 @@ public class Account extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long CustomerId;
+    private Long customerId;
 
-    @Id
     private Long accountNumber;
 
     private String accountType;
