@@ -1,0 +1,40 @@
+services:
+  account-service:
+    image: ebaby1738/account-service:v1
+    container_name: account-service-ms
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - kokorobank
+
+  loan-service:
+    image: ebaby1738/loan-service:v1
+    container_name: loan-service-ms
+    ports:
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - kokorobank
+
+  card-service:
+    image: ebaby1738/card-service:v1
+    container_name: card-service-ms
+    ports:
+      - "9000:9000"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - kokorobank
+
+networks:
+  kokorobank:
+    driver: "bridge"
