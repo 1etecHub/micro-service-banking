@@ -24,7 +24,7 @@ build:
   version:"3.0"
 
 accounts:
-  message: "welcome to Kokoro Bank accounts service related Apis"
+  message: "welcome to Kokoro Bank accounts service prod related Apis"
   contactDetails:
     name: "Ebenezer Irene - Developer"
     email: "ebabytechub@gmail.com"

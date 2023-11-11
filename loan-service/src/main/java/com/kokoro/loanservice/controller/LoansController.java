@@ -2,6 +2,7 @@ package com.kokoro.loanservice.controller;
 
 
 import com.kokoro.loanservice.constants.LoansConstants;
+import com.kokoro.loanservice.dto.LoansContactInfoDto;
 import com.kokoro.loanservice.dto.ErrorResponseDto;
 import com.kokoro.loanservice.dto.LoansDto;
 import com.kokoro.loanservice.dto.ResponseDto;
@@ -14,8 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,10 @@ import org.springframework.web.bind.annotation.*;
 public class LoansController {
 
     private ILoansService iLoansService;
+    private Environment environment;
+    //@Value("${build.version}")
+    private String buildVersion;
+    private LoansContactInfoDto loansContactInfoDto;
 
     @Operation(
             summary = "Create Loan REST API",
@@ -164,6 +169,75 @@ public class LoansController {
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
         }
+    }
+
+    @Operation(
+            summary = "Get build information REST API",
+            description = "REST API to get build information that is deployed into loan micro service"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "HttpStatus.OK"
+            ),
+
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Http status internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    }
+
+    @Operation(
+            summary = "Get JAVA version information REST API",
+            description = "REST API to get java version details that is deployed into loan micro service"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "HttpStatus.OK"
+            ),
+
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Http status internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("java-version")
+    public ResponseEntity<String> getJavaVersion() {
+        return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
+    }
+
+    @Operation(
+            summary = "Get contact information REST API",
+            description = "REST API to get contact info details that can be contacted incase of any issues"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "HttpStatus.OK"
+            ),
+
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Http status internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("contact-info")
+    public ResponseEntity<LoansContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(loansContactInfoDto);
     }
 
 }
