@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: "config-server"
+  profiles:
+    active: git
+  #active: native
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: "classpath:/config"
+        #git:
+          #timeout: 5
+          #uri: uri:https://github.com/ebaby1738/micro-service-banking/v2_springCloud/config
+          #default-label: main
+          #clone-on-start: true
+          #force-pull: true
+server:
+  port: 8071
