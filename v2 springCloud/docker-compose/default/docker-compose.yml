@@ -11,10 +11,9 @@ services:
       timeout: 5s
       retries: 10
       start_period: 5s
-    networks:
-      -kokorobank:
-
-
+    extends:
+      file: commom-config.yml
+      service: network-deploy-service
 
 
   account-service:
@@ -22,19 +21,11 @@ services:
     container_name: account-service-ms
     ports:
       -"8080:8080"
-    depends_on:
-      -config-server:
-         condition: service_completed_successfully
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    networks:
-      -kokorobank
     environment:
       SPRING_APPLICATION_NAME:"account-service"
-      SPRING_CONFIG_IMPORT:"configserver:http://config-server:8071/"
-      SPRING_PROFILES_ACTIVE:default
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
 
 
   loan-service:
@@ -42,38 +33,24 @@ services:
     container_name: loan-service-ms
     ports:
       -"8090:8090"
-    depends_on:
-      -config-server:
-        condition: service_completed_successfully
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    networks:
-      -kokorobank
     environment:
       SPRING_APPLICATION_NAME:"loan-service"
-      SPRING_CONFIG_IMPORT:"configserver:http://config-server:8071/"
-      SPRING_PROFILES_ACTIVE:default
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
 
   card-service:
     image: ebaby1738/card-service:v2
     container_name: card-service-ms
     ports:
       -"9000:9000"
-    depends_on:
-      -config-server:
-        condition: service_completed_successfully
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    networks:
-      -kokorobank
     environment:
       SPRING_APPLICATION_NAME:"account-service"
-      SPRING_CONFIG_IMPORT:"configserver:http://config-server:8071/"
-      SPRING_PROFILES_ACTIVE:default
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
 
   config-server:
     image: ebaby1738/config-server:v2
@@ -89,13 +66,9 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    networks:
-      -kokorobank
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
 
 networks:
   kokorobank:
