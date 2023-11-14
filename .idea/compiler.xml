@@ -7,11 +7,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="account-service" />
-        <module name="loan-service" />
-        <module name="card-service" />
+        <module name="micro-service-banking" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="account-service" target="17" />
+      <module name="card-service" target="17" />
+      <module name="loan-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
