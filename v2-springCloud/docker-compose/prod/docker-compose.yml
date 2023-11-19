@@ -1,78 +1,40 @@
 services:
-  rabbit:
-    image: rabbitmq:3.1.2-management
-    hostname: rabbitmq
-    ports:
-      -"5672:5672"
-      -"15672:15672"
-    healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
+  network-deploy-service:
+    networks:
+      -kokorobank
+
+  microservice-db-config:
     extends:
-      file: commom-config.yml
       service: network-deploy-service
+      image: mysql
+      healthcheck:
+        test: [ "CMD","mysqladmin","ping","-h","localhost" ]
+        interval: 10s
+        timeout: 10s
+        retries: 10
+        start_period: 10s
+      environment:
+        MYSQL_ROOT_PASSWORD:root
 
-
-  account-service:
-    image: ebaby1738/account-service:v2
-    container_name: account-service-ms
-    ports:
-      -"8080:8080"
+  microservice-base-config:
+    extends:
+      service: network-deploy-service
+    deploy:
+      resources:
+        limits:
+          memory: 700m
     environment:
-      SPRING_APPLICATION_NAME:"account-service"
+
+
+
+  microservice-configserver-config:
     extends:
-      file: common-config.yml
-      service: microservice-configserver-config
-
-
-  loan-service:
-    image: ebaby1738/loan-service:v2
-    container_name: loan-service-ms
-    ports:
-      -"8090:8090"
-    environment:
-      SPRING_APPLICATION_NAME:"loan-service"
-    extends:
-      file: common-config.yml
-      service: microservice-configserver-config
-
-
-  card-service:
-    image: ebaby1738/card-service:v2
-    container_name: card-service-ms
-    ports:
-      -"9000:9000"
-    environment:
-      SPRING_APPLICATION_NAME:"account-service"
-    extends:
-      file: common-config.yml
-      service: microservice-configserver-config
-
-
-  config-server:
-    image: ebaby1738/config-server:v2
-    container_name: account-service-ms
-    ports:
-      -"8071:8071"
-    depends_on:
-      -rabbit:
-         condition: service_healthy
-    healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: common-config.yml
       service: microservice-base-config
-
-networks:
-  kokorobank:
-    driver:"bridge"
-
-#run <mvn compile jib:dockerBuild> in all the 3 irectories of the services ie loan, account, card
-  #to generate their docker images
+    depends_on:
+      -config-server:
+        condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root

@@ -1,19 +1,34 @@
 services:
-  rabbit:
-    image: rabbitmq:3.1.2-management
-    hostname: rabbitmq
+  accountsDB:
+    image: mysql
     ports:
-      -"5672:5672"
-      -"15672:15672"
-    healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
+      -"3306:3306"
+    environment:
+      MYSQL_DATABASE:accountsDB
     extends:
       file: commom-config.yml
-      service: network-deploy-service
+      service: network-db-service
+
+  loansDB:
+    image: mysql
+    ports:
+      -"3307:3306"
+    environment:
+      MYSQL_DATABASE:loansDB
+    extends:
+      file: commom-config.yml
+      service: network-db-service
+
+
+  cardsDB:
+    image: mysql
+    ports:
+      -"3308:3306"
+    environment:
+      MYSQL_DATABASE:cardsDB
+    extends:
+      file: commom-config.yml
+      service: network-db-service
 
 
   account-service:
@@ -23,6 +38,10 @@ services:
       -"8080:8080"
     environment:
       SPRING_APPLICATION_NAME:"account-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://accountsDB:3306/accountsDB"
+    depends_on:
+      accountsDB:
+        condition: service_healthy
     extends:
       file: common-config.yml
       service: microservice-configserver-config
@@ -35,6 +54,10 @@ services:
       -"8090:8090"
     environment:
       SPRING_APPLICATION_NAME:"loan-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://loansDB:3306/loansDB"
+    depends_on:
+      loansDB:
+        condition: service_healthy
     extends:
       file: common-config.yml
       service: microservice-configserver-config
@@ -47,6 +70,10 @@ services:
       -"9000:9000"
     environment:
       SPRING_APPLICATION_NAME:"account-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://loansDB:3306/loansDB"
+    depends_on:
+      cardsDB:
+        condition: service_healthy
     extends:
       file: common-config.yml
       service: microservice-configserver-config
@@ -57,9 +84,6 @@ services:
     container_name: account-service-ms
     ports:
       -"8071:8071"
-    depends_on:
-      -rabbit:
-         condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
       interval: 10s
