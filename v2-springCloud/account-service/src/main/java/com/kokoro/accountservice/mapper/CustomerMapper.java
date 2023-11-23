@@ -1,8 +1,8 @@
 package com.kokoro.accountservice.mapper;
 
-import com.kokoro.accountservice.dto.request.AccountDto;
+;
+import com.kokoro.accountservice.dto.request.CustomerDetailsDto;
 import com.kokoro.accountservice.dto.request.CustomerDto;
-import com.kokoro.accountservice.entity.Account;
 import com.kokoro.accountservice.entity.Customer;
 
 public class CustomerMapper {
@@ -21,5 +21,14 @@ public class CustomerMapper {
         customer.setPassword(customerDto.getPassword());
         customer.setMobileNumber(customerDto.getMobileNumber());
         return customer;
+    }
+
+
+    public static CustomerDetailsDto mapToCustomerDetailsDto(Customer customer, CustomerDetailsDto customerDetailsDto){
+        customerDetailsDto.setName(customer.getName());
+        customerDetailsDto.setEmail(customer.getEmail());
+        customerDetailsDto.setPassword(customer.getPassword());
+        customerDetailsDto.setMobileNumber(customer.getMobileNumber());
+        return customerDetailsDto;
     }
 }
