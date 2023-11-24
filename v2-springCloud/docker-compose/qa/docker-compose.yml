@@ -1,40 +1,121 @@
 services:
-  network-deploy-service:
-    networks:
-      -kokorobank
-
-  microservice-db-config:
-    extends:
-      service: network-deploy-service
-      image: mysql
-      healthcheck:
-        test: [ "CMD","mysqladmin","ping","-h","localhost" ]
-        interval: 10s
-        timeout: 10s
-        retries: 10
-        start_period: 10s
-      environment:
-        MYSQL_ROOT_PASSWORD:root
-
-  microservice-base-config:
-    extends:
-      service: network-deploy-service
-    deploy:
-      resources:
-        limits:
-          memory: 700m
+  accountsDB:
+    image: mysql
+    ports:
+      -"3306:3306"
     environment:
-
-
-
-  microservice-configserver-config:
+      MYSQL_DATABASE:accountsDB
     extends:
-      service: microservice-base-config
+      file: commom-config.yml
+      service: network-db-service
+
+  loansDB:
+    image: mysql
+    ports:
+      -"3307:3306"
+    environment:
+      MYSQL_DATABASE:loansDB
+    extends:
+      file: commom-config.yml
+      service: network-db-service
+
+
+  cardsDB:
+    image: mysql
+    ports:
+      -"3308:3306"
+    environment:
+      MYSQL_DATABASE:cardsDB
+    extends:
+      file: commom-config.yml
+      service: network-db-service
+
+
+  account-service:
+    image: ebaby1738/account-service:v3
+    container_name: account-service-ms
+    ports:
+      -"8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME:"account-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://accountsDB:3306/accountsDB"
     depends_on:
-      -config-server:
+      accountsDB:
         condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+
+  loan-service:
+    image: ebaby1738/loan-service:v3
+    container_name: loan-service-ms
+    ports:
+      -"8090:8090"
     environment:
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
-      SPRING_PROFILES_ACTIVE: default
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_APPLICATION_NAME:"loan-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://loansDB:3306/loansDB"
+    depends_on:
+      loansDB:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+
+  card-service:
+    image: ebaby1738/card-service:v3
+    container_name: card-service-ms
+    ports:
+      -"9000:9000"
+    environment:
+      SPRING_APPLICATION_NAME:"account-service"
+      SPRING_DATASOURCE_URL:"jdbc:mysql://loansDB:3306/loansDB"
+    depends_on:
+      cardsDB:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+
+  config-server:
+    image: ebaby1738/config-server:v3
+    container_name: account-service-ms
+    ports:
+      -"8071:8071"
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+
+  eureka-server:
+    image: ebaby1738/eureka-server:v3
+    container_name: eureka-server-ms
+    ports:
+      -"8070:8070"
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+    environment:
+      SPRING_APPLICATION_NAME:"eureka-server"
+
+networks:
+  kokorobank:
+    driver:"bridge"
+
+  #run <mvn compile jib:dockerBuild> in all the 3 irectories of the services ie loan, account, card
+  #to generate their docker images

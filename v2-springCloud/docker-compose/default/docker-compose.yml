@@ -32,7 +32,7 @@ services:
 
 
   account-service:
-    image: ebaby1738/account-service:v2
+    image: ebaby1738/account-service:v3
     container_name: account-service-ms
     ports:
       -"8080:8080"
@@ -44,11 +44,11 @@ services:
         condition: service_healthy
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 
   loan-service:
-    image: ebaby1738/loan-service:v2
+    image: ebaby1738/loan-service:v3
     container_name: loan-service-ms
     ports:
       -"8090:8090"
@@ -60,11 +60,11 @@ services:
         condition: service_healthy
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 
   card-service:
-    image: ebaby1738/card-service:v2
+    image: ebaby1738/card-service:v3
     container_name: card-service-ms
     ports:
       -"9000:9000"
@@ -76,11 +76,11 @@ services:
         condition: service_healthy
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 
   config-server:
-    image: ebaby1738/config-server:v2
+    image: ebaby1738/config-server:v3
     container_name: account-service-ms
     ports:
       -"8071:8071"
@@ -92,7 +92,26 @@ services:
       start_period: 10s
     extends:
       file: common-config.yml
-      service: microservice-base-config
+      service: microservice-eureka-config
+
+
+  eureka-server:
+    image: ebaby1738/eureka-server:v3
+    container_name: eureka-server-ms
+    ports:
+      -"8070:8070"
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+    environment:
+      SPRING_APPLICATION_NAME:"eureka-server"
 
 networks:
   kokorobank:
