@@ -73,4 +73,7 @@ public class GatewayServerApplication {
 				.defaultIfEmpty("anonymous");
 	}
 
+	// the redis container can be started with docker to enable it can maintaian creating the bucket with the username and maintianing all the configurations
+	//RUN docker run -p 6379:6379 --name kokororedis -d redis
+
 }
