@@ -1,0 +1,74 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: cards
+  profiles:
+    active: "prod"
+  datasource:
+    url: jdbc:mysql://localhost:3306/cardsDB
+    username: root
+    password: Mysql8371
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+  devtools:
+    restart:
+      enabled: true
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+
+  info:
+    env:
+      enabled: true
+
+
+endpoints:
+  shutdown:
+    enabled: true
+
+
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+
+info:
+  app:
+    name: "CARDS"
+    description: "Kokoro bank Card application"
+    version: "1.0.0"
+
+
+logging:
+  level:
+    com:
+      kokoro:
+        card-service: DEBUG
