@@ -22,8 +22,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
-    private final CardsFeignClient cardsFeignClient;
-    private final LoansFeignClient loansFeignClient;
+    private CardsFeignClient cardsFeignClient;
+    private  LoansFeignClient loansFeignClient;
 
     @Override
     public CustomerDetailsDto fetchCustomerDetails(String mobileNumber, String correlationId) {
@@ -35,9 +35,13 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerDetailsDto customerDetailsDto = CustomerMapper.mapToCustomerDetailsDto(customer, new CustomerDetailsDto());
         customerDetailsDto.setAccountDto(AccountMapper.mapToAccountDto(account, new AccountDto()));
         ResponseEntity<LoansDto> loansDtoResponseEntity = loansFeignClient.fetchLoanDetails(correlationId, mobileNumber);
-        customerDetailsDto.setLoansDto(loansDtoResponseEntity.getBody());
+        if(null != loansDtoResponseEntity) {
+            customerDetailsDto.setLoansDto(loansDtoResponseEntity.getBody());
+        }
         ResponseEntity<CardsDto> cardsDtoResponseEntity = cardsFeignClient.fetchCardDetails(correlationId, mobileNumber);
-        customerDetailsDto.setCardsDto(cardsDtoResponseEntity.getBody());
+        if(null != cardsDtoResponseEntity) {
+            customerDetailsDto.setCardsDto(cardsDtoResponseEntity.getBody());
+        }
         return customerDetailsDto;
 
     }

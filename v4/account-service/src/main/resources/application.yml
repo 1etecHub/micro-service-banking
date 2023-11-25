@@ -20,6 +20,10 @@ spring:
   config:
     import: "optional:configserver:http://localhost:8071/"
 
+  cloud:
+    openFeign:
+      circuitBreaker:
+        enabled: true
 
 management:
   endpoints:
@@ -71,3 +75,11 @@ logging:
     com:
       kokoro:
         account-service: DEBUG
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
