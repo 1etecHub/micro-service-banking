@@ -1,0 +1,13 @@
+
+
+build:
+  version:"3.0"
+
+cards:
+  message: "welcome to Kokoro Bank card service prod related Apis"
+  contactDetails:
+    name: "Ebenezer Irene - Developer"
+    email: "ebabytechub@gmail.com"
+  onCallSupport:
+    -(234)8024978496
+    -(234)8024978496
